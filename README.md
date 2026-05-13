@@ -9,7 +9,7 @@ Symptom Analysis
 Healthcare Recommendations
 User-Friendly Interface
 Machine Learning Integration
-🛠️ Technologies Used
+🛠️ Technologies Used  
 Python
 Flask
 HTML, CSS, JavaScript
