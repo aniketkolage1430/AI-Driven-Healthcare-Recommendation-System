@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Healthcare Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark"><i class="fa-solid fa-heart-pulse"></i></div>
+            <div>
+                <h1>MediAI</h1>
+                <span>Care Intelligence</span>
+            </div>
+        </div>
+        <nav>
+            <a href="#dashboard" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+            <a href="#checker"><i class="fa-solid fa-stethoscope"></i> Symptom Checker</a>
+            <a href="#predictions"><i class="fa-solid fa-brain"></i> Predictions</a>
+            <a href="#tips"><i class="fa-solid fa-lightbulb"></i> Health Tips</a>
+            <a href="#profile"><i class="fa-solid fa-user-doctor"></i> Profile</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span>Best Model</span>
+            <strong>{{ model_name }}</strong>
+        </div>
+    </aside>
+
+    <main class="app-shell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">AI Healthcare Dashboard</p>
+                <h2>Smart Symptom-Based Recommendation System</h2>
+            </div>
+            <div class="top-actions">
+                <button id="darkModeBtn" class="icon-btn" title="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+                <button id="exportBtn" class="btn btn-primary"><i class="fa-solid fa-file-pdf"></i> Export Report</button>
+            </div>
+        </header>
+
+        <section id="dashboard" class="metric-grid">
+            <article class="metric-card gradient-blue">
+                <span>Model Accuracy</span>
+                <strong>{{ accuracy }}%</strong>
+                <div class="progress"><div class="progress-bar" style="width: {{ accuracy }}%"></div></div>
+            </article>
+            <article class="metric-card gradient-green">
+                <span>Models Compared</span>
+                <strong>5</strong>
+                <div class="mini-text">RF, GB, LR, KNN, SVC</div>
+            </article>
+            <article class="metric-card gradient-purple">
+                <span>Recommendation Sources</span>
+                <strong>5 CSVs</strong>
+                <div class="mini-text">Diet, workout, medicines, precautions</div>
+            </article>
+            <article class="metric-card gradient-orange">
+                <span>AI Confidence</span>
+                <strong id="confidenceText">Ready</strong>
+                <div class="confidence-ring"><span id="confidenceRing">0%</span></div>
+            </article>
+        </section>
+
+        <section class="content-grid">
+            <article id="checker" class="panel checker-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Symptom Checker</p>
+                        <h3>Describe how you feel</h3>
+                    </div>
+                    <div class="ai-orbit"><span></span><span></span><span></span></div>
+                </div>
+
+                <form id="predictionForm">
+                    <textarea id="symptomsInput" class="form-control" rows="5" placeholder="Example: fever, chills, sweating, body pain"></textarea>
+                    <div class="quick-chips">
+                        <button type="button" data-symptoms="fever, chills, sweating">Fever</button>
+                        <button type="button" data-symptoms="heart burn, vomiting, stomach pain">Acidity</button>
+                        <button type="button" data-symptoms="skin rash, itching">Skin Rash</button>
+                        <button type="button" data-symptoms="cough, high fever, breathlessness">Cough</button>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-success" type="submit"><i class="fa-solid fa-wand-magic-sparkles"></i> Predict Disease</button>
+                        <button class="btn btn-outline-primary" type="button" id="voiceBtn"><i class="fa-solid fa-microphone"></i> Voice Input</button>
+                    </div>
+                </form>
+
+                <div id="typingStatus" class="typing-status d-none">
+                    <span></span><span></span><span></span>
+                    <em>AI assistant is analyzing symptoms...</em>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Model Analytics</p>
+                        <h3>Accuracy Comparison</h3>
+                    </div>
+                </div>
+                <canvas id="modelChart" height="220"></canvas>
+            </article>
+        </section>
+
+        <section id="predictions" class="content-grid">
+            <article class="panel prediction-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Predictions</p>
+                        <h3>Top 5 Disease Probabilities</h3>
+                    </div>
+                </div>
+                <div id="predictionCards" class="prediction-list empty-state">
+                    <i class="fa-solid fa-notes-medical"></i>
+                    <p>Enter symptoms to generate AI predictions.</p>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Probability Chart</p>
+                        <h3>Disease Confidence</h3>
+                    </div>
+                </div>
+                <canvas id="probabilityChart" height="240"></canvas>
+            </article>
+        </section>
+
+        <section id="recommendations" class="panel recommendation-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Recommendations</p>
+                    <h3 id="primaryDisease">Awaiting prediction</h3>
+                </div>
+                <span id="matchedSymptoms" class="badge text-bg-info">No symptoms matched yet</span>
+            </div>
+            <p id="diseaseDescription" class="description-text">Your disease description, medicines, diet plan, precautions, workouts, and AI tips will appear here.</p>
+            <div id="recommendationCards" class="recommendation-grid"></div>
+        </section>
+
+        <section id="tips" class="content-grid">
+            <article class="panel chatbot-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">AI Chatbot</p>
+                        <h3>Assistant Response</h3>
+                    </div>
+                </div>
+                <div class="chat-window" id="chatWindow">
+                    <div class="bot-message">Hello, I am your AI healthcare assistant. Share symptoms and I will prepare a structured recommendation report.</div>
+                </div>
+            </article>
+            <article id="profile" class="panel history-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Profile</p>
+                        <h3>Search History</h3>
+                    </div>
+                    <button id="clearHistoryBtn" class="icon-btn" title="Clear history"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                <div id="historyList" class="history-list"></div>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        window.MODEL_SCORES = {{ model_scores|safe }};
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
